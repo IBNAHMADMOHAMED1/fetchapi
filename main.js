@@ -2,6 +2,21 @@ document.getElementById('getText').addEventListener('click',getText);
 document.getElementById('getUsers').addEventListener('click',getUsers);
 document.getElementById('getPosts').addEventListener('click',getPosts);
 document.getElementById('addPost').addEventListener('submit',addPost);
+
+const renderPost =(data)=>{
+    let output ='<h2>Category</h2>';
+    data.forEach(function(user){
+        console.log(user)
+    output +=`
+    <ul class="list-group mb-3">
+        <li  class="list-group-item">ID:${user.id}</li>
+        <li class="list-group-item">NAME:${user.name}</li>
+        <li class="list-group-item">Created At:${user.created_at}</li>
+    </ul>
+    `;
+});
+document.getElementById('output').innerHTML=output;
+}
 function getText(){
     // console.log(123);
     // fetch('sample.txt')
@@ -19,24 +34,14 @@ function getText(){
     .catch((err)=>console.log(err))
 }
 function getUsers(){
-   fetch('users.json').then(res => res.json()).then((data) =>{
+   fetch('http://localhost/php_myBlog/api/category/read.php').then(res => res.json()).then((data) =>{
     //    console.log(data);
-    let output ='<h2>Users</h2>';
-    data.forEach(function(user){
-            console.log(user)
-        output +=`
-        <ul class="list-group mb-3">
-            <li  class="list-group-item">ID:${user.id}</li>
-            <li class="list-group-item">NAME:${user.name}</li>
-            <li class="list-group-item">EMAIL:${user.email}</li>
-        </ul>
-        `;
-    });
-    document.getElementById('output').innerHTML=output;
+    
+    renderPost(data)
    })
 }
 function getPosts (){
-fetch('https://jsonplaceholder.typicode.com/posts')
+fetch('http://localhost/FETCHAPI/api/post/read.php')
 .then((res)=> res.json())
 .then((data) =>{
       //    console.log(data);
@@ -47,6 +52,8 @@ fetch('https://jsonplaceholder.typicode.com/posts')
         <div class="card card-body">
             <h3>${post.title}</h3>
             <h3>${post.body}</h3>
+            <h3>${post.author}</h3>
+            <h3>${post.category_name}</h3>
         </div>
         
         `;
@@ -58,15 +65,25 @@ function addPost(e){
    e.preventDefault();
    let title = document.getElementById('title').value;
    let body = document.getElementById('body').value;
+   let author =document.getElementById('author').value;
+   let category_id=1;
 
-   fetch('https://jsonplaceholder.typicode.com/posts',{
+   fetch('http://localhost/FETCHAPI/api/post/create.php',{
        method: 'POST',
        headers: {
-           'accept': 'application/json, text/plain, */*',
+           'Accept': 'application/json, text/plain, */*',
            'content-type': 'application/json'
        },
-    body: JSON.stringify({title: title, body: body})
+    body: JSON.stringify({title, body,author,category_id})
+   
    })
-   .then((res)=>res.json())
-   .then((data)=>console.log(data))
+   .then((res)=>res.text())
+   .then((data) => {
+    //    data = JSON(data)
+    console.log(data);
+    // const dataArr =[];
+    // dataArr.push(data);
+    // // renderPost(dataArr)
+    // console.log(dataArr);
+   })
 }
